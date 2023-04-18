@@ -13,7 +13,7 @@ def groupGen():
     q = group.order() #Order of the group
     g = group.generator() #Group generator
 
-    return q, g
+    return group, q, g
 
 
 #Generates secret and public key for Prover using the EC group
@@ -54,14 +54,16 @@ def Prover_response(r, e, w, q):
 #Verifer Asserts if the ZKP is correct
 #Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
 #Returns either True or False depending on whether the proof goes through.
-def Verifier_verify(g, z, a, h, e):
+def Verifier_verify(g, z, a, h, e, group):
     v = z*g == a+e*h #Verifies that the reponse corresponds with the commitment
-    return v
+    g_v = group.check_point(g) #Checks that g is on the curve
+    g_h = group.check_point(h) #Checks that h is on the curve
+    return v & g_v & g_h
 
 
 #Runs a full Proof of Knowledge
 def proof():
-    q, g = groupGen() #Generates public knowledge
+    group, q, g = groupGen() #Generates public knowledge
     w, h = keygen(q, g) #Prover generates their secret and public keys, "publishing" the public key
 
     #Prover generates and "sends" commitment to Verifier.
@@ -78,7 +80,7 @@ def proof():
     #Public information: g, h
     #Verifier generated information: challenge
     #Information send by prover: commitment, response
-    verify = Verifier_verify(g, response, commitment, h, challenge)
+    verify = Verifier_verify(g, response, commitment, h, challenge, group)
 
     print("Proof verified:", verify)
 
