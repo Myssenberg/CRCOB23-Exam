@@ -23,11 +23,11 @@ def Vchallenge(order, g):
     return c
 
 def Presponse(r, c, w):
-    z = r + c+w
+    z = r + c*w
     return z
 
 def Vverify(g, z, com, h, c):
-    v = z*g == com+h*c
+    v = z*g == com+c*h
     return v
 
 def proof():
@@ -38,10 +38,10 @@ def proof():
 
     challenge = Vchallenge(order, g)
 
-    response = Presponse(r, commitment, w)
+    response = Presponse(r, challenge, w)
 
-    #verify = Vverify(g, response, commitment, h, challenge)
+    verify = Vverify(g, response, commitment, h, challenge)
 
-    #print("Proof verified:", verify)
+    print("Proof verified:", verify)
 
 proof()
