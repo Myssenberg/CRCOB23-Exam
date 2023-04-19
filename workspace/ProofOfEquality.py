@@ -1,4 +1,5 @@
 from petlib import ec
+from zksk.utils.groups import make_generators
 
 #modeled after "On Sigma Protocols" by Ivan Damgård page 9-10, first example in section 5
 #names should match the naming in the paper.
@@ -11,29 +12,30 @@ def groupGen():
     #p is not needed here when working with EC
     group = ec.EcGroup()
     q = group.order() #Order of the group
-    g = group.generator() #Group generator
+    g1, g2 = make_generators(2, group) #Group generator
 
-    return group, q, g
+
+    return group, q, g1, g2
 
 
 #Generates secret and public key for Prover using the EC group
 #Takes EC group order, q, and EC group generator, g, as arguments
 #Returns Prover secret key(witness), w, and Prover public key, h.
-def keygen(q, g, g_):
+def keygen(q, g1, g2):
     w = q.random() #secret key, prover witness
-    h = w*g #EC public key
-    h_ = w*g_
-    return w, h, h_
+    h1 = w*g1 #EC public key
+    h2 = w*g2
+    return w, h1, h2
 
 
 #Generates a Prover commitment (step one in protocol)
 #Takes EC group order, q, and EC group generator, g, as arguments
 #Returns Prover commitment, a, and Prover randomness, r.
-def Prover_commitment(q, g, g_):
+def Prover_commitment(q, g1, g2):
     r = q.random() #Generates randomness for the commitment
-    a = r*g #Computes the commitment
-    a_ = r*g_
-    return a, a_ , r
+    a1 = r*g1 #Computes the commitment
+    a2 = r*g2
+    return a1, a2 , r
 
 
 #Generates a Verifier challenge (step two in protocol) randomly from the order of the group
@@ -56,25 +58,25 @@ def Prover_response(r, e, w, q):
 #Verifer Asserts if the ZKP is correct
 #Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
 #Returns either True or False depending on whether the proof goes through.
-def Verifier_verify(g, g_, z, a, a_ , h, h_ , e, group):
-    v = z*g == a+e*h #Verifies that the reponse corresponds with the commitment
-    v_ = z*g_ == a_ + e * h_
-    v_g = group.check_point(g) #Checks that g is on the curve
-    v_h = group.check_point(h) #Checks that h is on the curve
-    v_g_ = group.check_point(g_) #Checks that g is on the curve
-    v_h_ = group.check_point(h_) #Checks that h is on the curve
+def Verifier_verify(g1, g2, z, a1, a2 , h1, h2 , e, group):
+    v1 = z*g1 == a1+e*h1 #Verifies that the reponse corresponds with the commitment
+    v2 = z*g2 == a2 + e * h2
+    v_g1 = group.check_point(g1) #Checks that g is on the curve
+    v_h1 = group.check_point(h1) #Checks that h is on the curve
+    v_g2 = group.check_point(g2) #Checks that g is on the curve
+    v_h2 = group.check_point(h2) #Checks that h is on the curve
 
-    return v & v_g & v_g_ & v_h & v_h_
+    return v1 & v2 & v_g1 & v_g2 & v_h1 & v_h2
 
 
 #Runs a full Proof of Knowledge
 def proof():
-    group, q, g = groupGen() #Generates public knowledge
-    w, h, h_ = keygen(q, g, g_) #Prover generates their secret and public keys, "publishing" the public key
+    group, q, g1, g2 = groupGen() #Generates public knowledge
+    w, h1, h2 = keygen(q, g1, g2) #Prover generates their secret and public keys, "publishing" the public key
 
     #Prover generates and "sends" commitment to Verifier.
     #Notice only Prover knows and keeps r
-    commitment, r = Prover_commitment(q, g)
+    commitment1, commitment2, r = Prover_commitment(q, g1, g2)
 
     #Verifier "receives" commitment. Generates challenge and "sends" it to Prover
     challenge = Verifier_challenge(q)
@@ -86,7 +88,7 @@ def proof():
     #Public information: g, h
     #Verifier generated information: challenge
     #Information send by prover: commitment, response
-    verify = Verifier_verify(g, response, commitment, h, challenge, group)
+    verify = Verifier_verify(g1, g2, response, commitment1, commitment2, h1, h2, challenge, group)
 
     print("Proof verified:", verify)
 
