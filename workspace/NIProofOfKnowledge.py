@@ -6,7 +6,7 @@ from hashlib import sha256
 
 #Generates a group over an elliptic curve(EC)
 #Takes no arguments
-#Returns group order, q, and group generator, g
+#Returns group, group order, q, and group generator, g
 def groupGen():
     #Generates an elliptic curve group.
     #p is not needed here when working with EC
@@ -35,9 +35,9 @@ def Prover_commitment(q, g):
     return a, r
 
 
-#Generates a Verifier challenge (step two in protocol) randomly from the order of the group
-#Takes EC group order, q, as argument
-#Returns Verifier challenge, e.
+#Generates a Prover challenge (step two in protocol) with a hash function from the group generator, public key, and commitment
+#Takes group generator, public key and commitment as arguments
+#Returns Prover challenge, e.
 def Prover_challenge(g, h, a):
     e = sha256(str(g+h+a).encode()).hexdigest()
 
@@ -48,17 +48,18 @@ def Prover_challenge(g, h, a):
 #Takes Prover randomness, r, challenge, e, prover witness, w, and EC order, q.
 #Returns Prover response, z.
 def Prover_response(r, e, w, q):
-    z = r - e*w % q #Computes secret response
+    z = r - bn.Bn.from_hex(e)*w % q #Computes secret response
     return z
 
 
 #Verifer Asserts if the ZKP is correct
-#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
+#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), and group.
+#Verifier generates challenge itself in the same way as prover has done, thus verifying the legitimacy
 #Returns either True or False depending on whether the proof goes through.
 def Verifier_verify(g, z, a, h, group):
     e = sha256(str(g+h+a).encode()).hexdigest()
 
-    v = a == z*g+e*h #Verifies that the reponse corresponds with the commitment
+    v = a == z*g+bn.Bn.from_hex(e)*h #Verifies that the reponse corresponds with the commitment
     g_v = group.check_point(g) #Checks that g is on the curve
     g_h = group.check_point(h) #Checks that h is on the curve
     return v & g_v & g_h
@@ -69,21 +70,20 @@ def proof():
     group, q, g = groupGen() #Generates public knowledge
     w, h = keygen(q, g) #Prover generates their secret and public keys, "publishing" the public key
 
-    #Prover generates and "sends" commitment to Verifier.
-    #Notice only Prover knows and keeps r
+    #Prover generates commitment
     commitment, r = Prover_commitment(q, g)
 
-    #Verifier "receives" commitment. Generates challenge and "sends" it to Prover
+    #Prover generates challenge
     challenge = Prover_challenge(g,h,commitment)
 
-    #Prover "receives" challenge. Generates response and "sends" it to Verifier for verification
+    #Prover generates response and "sends" commitment and response to Verifier for verification
     response = Prover_response(r, challenge, w, q)
 
     #Verifier "receives" response. Verifies proof with:
     #Public information: g, h
-    #Verifier generated information: challenge
+    #Verifier generated information: challenge (using the same hashfunction as prover)
     #Information send by prover: commitment, response
-    verify = Verifier_verify(g, response, commitment, h, challenge, group)
+    verify = Verifier_verify(g, response, commitment, h, group)
 
     print("Proof verified:", verify)
 
