@@ -51,21 +51,8 @@ def Prover_response(r, e, w, q):
     return z
 
 
-#Verifer Asserts if the ZKP is correct
-#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
-#Returns either True or False depending on whether the proof goes through.
-def Verifier_verify(g, z, a, h, e, group):
-    v = z*g == a+e*h #Verifies that the reponse corresponds with the commitment
-    g_v = group.check_point(g) #Checks that g is on the curve
-    g_h = group.check_point(h) #Checks that h is on the curve
-    return v & g_v & g_h
-
-
 #Runs a full Proof of Knowledge
-def proof():
-    group, q, g = groupGen() #Generates public knowledge
-    w, h = keygen(q, g) #Prover generates their secret and public keys, "publishing" the public key
-
+def proofGen(q, g, w):
     #Prover generates and "sends" commitment to Verifier.
     #Notice only Prover knows and keeps r
     commitment, r = Prover_commitment(q, g)
@@ -76,12 +63,28 @@ def proof():
     #Prover "receives" challenge. Generates response and "sends" it to Verifier for verification
     response = Prover_response(r, challenge, w, q)
 
-    #Verifier "receives" response. Verifies proof with:
-    #Public information: g, h
-    #Verifier generated information: challenge
-    #Information send by prover: commitment, response
-    verify = Verifier_verify(g, response, commitment, h, challenge, group)
+    return commitment, challenge, response
 
-    print("Proof verified:", verify)
+#Verifer Asserts if the ZKP is correct
+#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
+#Returns either True or False depending on whether the proof goes through.
+def Verifier_verify(group, g, h, proof):
+    a, e, z = proof
+    v = z*g == a+e*h #Verifies that the reponse corresponds with the commitment
+    g_v = group.check_point(g) #Checks that g is on the curve
+    h_v = group.check_point(h) #Checks that h is on the curve
+    return v & g_v & h_v
 
-proof()
+
+
+group, q, g = groupGen() #Generates public knowledge
+w, h = keygen(q, g) #Prover generates their secret and public keys, "publishing" the public key
+
+proof = proofGen(q, g, w)
+
+#Verifier "receives" response. Verifies proof with:
+#Public information: g, h
+#Verifier generated information: challenge
+#Information send by prover: commitment, response
+verify = Verifier_verify(group, g, h, proof)
+print("Proof verified:", verify)

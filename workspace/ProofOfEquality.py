@@ -55,25 +55,8 @@ def Prover_response(r, e, w, q):
     return z
 
 
-#Verifer Asserts if the ZKP is correct
-#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
-#Returns either True or False depending on whether the proof goes through.
-def Verifier_verify(g1, g2, z, a1, a2 , h1, h2 , e, group):
-    v1 = z*g1 == a1+e*h1 #Verifies that the reponse corresponds with the commitment
-    v2 = z*g2 == a2 + e * h2
-    v_g1 = group.check_point(g1) #Checks that g is on the curve
-    v_h1 = group.check_point(h1) #Checks that h is on the curve
-    v_g2 = group.check_point(g2) #Checks that g is on the curve
-    v_h2 = group.check_point(h2) #Checks that h is on the curve
-
-    return v1 & v2 & v_g1 & v_g2 & v_h1 & v_h2
-
-
 #Runs a full Proof of Knowledge
-def proof():
-    group, q, g1, g2 = groupGen() #Generates public knowledge
-    w, h1, h2 = keygen(q, g1, g2) #Prover generates their secret and public keys, "publishing" the public key
-
+def proofGen(q, g1, g2, w):
     #Prover generates and "sends" commitment to Verifier.
     #Notice only Prover knows and keeps r
     commitment1, commitment2, r = Prover_commitment(q, g1, g2)
@@ -84,12 +67,32 @@ def proof():
     #Prover "receives" challenge. Generates response and "sends" it to Verifier for verification
     response = Prover_response(r, challenge, w, q)
 
-    #Verifier "receives" response. Verifies proof with:
-    #Public information: g, h
-    #Verifier generated information: challenge
-    #Information send by prover: commitment, response
-    verify = Verifier_verify(g1, g2, response, commitment1, commitment2, h1, h2, challenge, group)
+    return commitment1, commitment2, challenge, response
 
-    print("Proof verified:", verify)
+#Verifer Asserts if the ZKP is correct
+#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
+#Returns either True or False depending on whether the proof goes through.
+def Verifier_verify(group, g1, g2, h1, h2, proof):
+    a1, a2, e, z = proof
+    
+    v1 = z*g1 == a1+e*h1 #Verifies that the reponse corresponds with the commitment
+    v2 = z*g2 == a2 + e * h2
+    v_g1 = group.check_point(g1) #Checks that g is on the curve
+    v_h1 = group.check_point(h1) #Checks that h is on the curve
+    v_g2 = group.check_point(g2) #Checks that g is on the curve
+    v_h2 = group.check_point(h2) #Checks that h is on the curve
 
-proof()
+    return v1 & v2 & v_g1 & v_g2 & v_h1 & v_h2
+
+
+
+group, q, g1, g2 = groupGen() #Generates public knowledge
+w, h1, h2 = keygen(q, g1, g2) #Prover generates their secret and public keys, "publishing" the public key
+proof = proofGen(q, g1, g2, w)
+
+#Verifier "receives" response. Verifies proof with:
+#Public information: g, h
+#Verifier generated information: challenge
+#Information send by prover: commitment, response
+verify = Verifier_verify(group, g1, g2, h1, h2, proof)
+print("Proof verified:", verify)

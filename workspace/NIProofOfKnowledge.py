@@ -52,24 +52,8 @@ def Prover_response(r, e, w, q):
     return z
 
 
-#Verifer Asserts if the ZKP is correct
-#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), and group.
-#Verifier generates challenge itself in the same way as prover has done, thus verifying the legitimacy
-#Returns either True or False depending on whether the proof goes through.
-def Verifier_verify(g, z, a, h, group):
-    e = sha256(str(g+h+a).encode()).hexdigest()
-
-    v = a == z*g+bn.Bn.from_hex(e)*h #Verifies that the reponse corresponds with the commitment
-    g_v = group.check_point(g) #Checks that g is on the curve
-    g_h = group.check_point(h) #Checks that h is on the curve
-    return v & g_v & g_h
-
-
 #Runs a full Proof of Knowledge
-def proof():
-    group, q, g = groupGen() #Generates public knowledge
-    w, h = keygen(q, g) #Prover generates their secret and public keys, "publishing" the public key
-
+def proofGen(q, g, w, h):
     #Prover generates commitment
     commitment, r = Prover_commitment(q, g)
 
@@ -79,12 +63,31 @@ def proof():
     #Prover generates response and "sends" commitment and response to Verifier for verification
     response = Prover_response(r, challenge, w, q)
 
-    #Verifier "receives" response. Verifies proof with:
-    #Public information: g, h
-    #Verifier generated information: challenge (using the same hashfunction as prover)
-    #Information send by prover: commitment, response
-    verify = Verifier_verify(g, response, commitment, h, group)
+    return commitment, response
 
-    print("Proof verified:", verify)
 
-proof()
+#Verifer Asserts if the ZKP is correct
+#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), and group.
+#Verifier generates challenge itself in the same way as prover has done, thus verifying the legitimacy
+#Returns either True or False depending on whether the proof goes through.
+def Verifier_verify(group, g, h, proof):
+    a, z = proof
+
+    e = sha256(str(g+h+a).encode()).hexdigest()
+
+    v = a == z*g+bn.Bn.from_hex(e)*h #Verifies that the reponse corresponds with the commitment
+    g_v = group.check_point(g) #Checks that g is on the curve
+    g_h = group.check_point(h) #Checks that h is on the curve
+    return v & g_v & g_h
+
+
+group, q, g = groupGen() #Generates public knowledge
+w, h = keygen(q, g) #Prover generates their secret and public keys, "publishing" the public key
+proof = proofGen(q, g, w, h)
+
+#Verifier "receives" response. Verifies proof with:
+#Public information: g, h
+#Verifier generated information: challenge (using the same hashfunction as prover)
+#Information send by prover: commitment, response
+v = Verifier_verify(group, g, h, proof)
+print("Proof verified:", v)
