@@ -30,6 +30,7 @@ These are commented out, but are kept in the file for documentation purposes.
 
 from petlib import ec, bn
 from hashlib import sha256
+import time
 
 def groupGen():
     """Generates an EC group, group order and generator
@@ -189,10 +190,16 @@ group, q, g = groupGen()
 #Prover generates their secret and public keys, "publishing" the public key
 w, h = keyGen(q, g)
 
+startProof = time.process_time_ns()
 #Prover generates proof
 proof = proofGen(q, g, w, h)
+finishProof = time.process_time_ns() - startProof
 
+startVerify = time.process_time_ns()
 #Verifier "receives" proof and verifies it:
 v = verify(group, g, h, proof)
+finishVerify = time.process_time_ns() - startVerify
 
-print("Proof verified:", v)
+print("NIPoK Proof verified:", v)
+print("NIPoK Proof Generation time:", finishProof)
+print("NIPoK Proof Verification time:", finishVerify)

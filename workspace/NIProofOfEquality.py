@@ -132,8 +132,6 @@ def Prover_response(r, e, w, q):
 
     return z
 
-
-#Runs a full Proof of Knowledge
 def proofGen(q, g1, g2, h1, h2, w):
     """Generates the full proof
     commitment, challenge and response
@@ -163,9 +161,6 @@ def proofGen(q, g1, g2, h1, h2, w):
     #to Verifier for verification
     return commitment1, commitment2, response
 
-#Verifer Asserts if the ZKP is correct
-#Takes EC group generator(g), response(z), commitment(a), Prover public key(h), challenge(e)
-#Returns either True or False depending on whether the proof goes through.
 def verify(group, g1, g2, h1, h2, proof):
     """Verifies the full proof received from the prover
 
@@ -205,10 +200,16 @@ group, q, g1, g2 = groupGen()
 #Prover generates their secret and public keys, "publishing" the public keys
 w, h1, h2 = keyGen(q, g1, g2)
 
+startProof = time.process_time_ns()
 #Prover generates proof
 proof = proofGen(q, g1, g2, h1, h2, w)
+finishProof = time.process_time_ns() - startProof
 
+startVerify = time.process_time_ns()
 #Verifier "receives" proof and verifies it:
 v = verify(group, g1, g2, h1, h2, proof)
+finishVerify = time.process_time_ns() - startVerify
 
-print("Proof verified:", v)
+print("NIPoE Proof verified:", v)
+print("NIPoE Proof Generation time:", finishProof)
+print("NIPoE Proof Verification time:", finishVerify)

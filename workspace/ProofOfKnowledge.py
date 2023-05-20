@@ -27,6 +27,7 @@ These are commented out, but are kept in the file for documentation purposes.
 """
 
 from petlib import ec
+import time
 
 def groupGen():
     """Generates an EC group, group order and generator
@@ -174,10 +175,16 @@ group, q, g = groupGen()
 #Prover generates their secret and public key, "publishing" the public key
 w, h = keyGen(q, g)
 
+startProof = time.process_time_ns()
 #Prover generates proof, with challenge from Verifier
 proof = proofGen(q, g, w)
+finishProof = time.process_time_ns() - startProof
 
+startVerify = time.process_time_ns()
 #Verifier "receives" proof and verifies it:
 v = verify(group, g, h, proof)
+finishVerify = time.process_time_ns() - startVerify
 
-print("Proof verified:", v)
+print("PoK Proof verified:", v)
+print("PoK Proof Generation time:", finishProof)
+print("PoK Proof Verification time:", finishVerify)

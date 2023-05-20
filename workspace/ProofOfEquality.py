@@ -28,6 +28,7 @@ These are commented out, but are kept in the file for documentation purposes.
 
 from petlib import ec
 from zksk.utils.groups import make_generators
+import time
 
 def groupGen():
     """Generates an EC group, group order and generator
@@ -182,10 +183,16 @@ group, q, g1, g2 = groupGen()
 #Prover generates their secret and public keys, "publishing" the public keys
 w, h1, h2 = keygen(q, g1, g2)
 
+startProof = time.process_time_ns()
 #Prover generates proof, with challenge from Verifier
 proof = proofGen(q, g1, g2, w)
+finishProof = time.process_time_ns() - startProof
 
+startVerify = time.process_time_ns()
 #Verifier "receives" proof and verifies it:
 v = verify(group, g1, g2, h1, h2, proof)
+finishVerify = time.process_time_ns() - startVerify
 
-print("Proof verified:", v)
+print("PoE Proof verified:", v)
+print("PoE Proof Generation time:", finishProof)
+print("PoE Proof Verification time:", finishVerify)
