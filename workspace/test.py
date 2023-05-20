@@ -7,46 +7,46 @@ import NIProofOfEquality as NIPoE
 class TestPoK(unittest.TestCase):
     def test_proof_correct_values(self):
         group, q, g = PoK.groupGen()
-        w, h = PoK.keygen(q, g)
+        w, h = PoK.keyGen(q, g)
         proof = PoK.proofGen(q, g, w)
 
-        self.assertTrue(PoK.Verifier_verify(group, g, h, proof))
+        self.assertTrue(PoK.verify(group, g, h, proof))
     
     def test_proof_wrong_witness(self):
         group, q, g = PoK.groupGen()
-        w, h = PoK.keygen(q, g)
+        w, h = PoK.keyGen(q, g)
         proof = PoK.proofGen(q, g, 0)
 
-        self.assertFalse(PoK.Verifier_verify(group, g, h, proof))
+        self.assertFalse(PoK.verify(group, g, h, proof))
     
     def test_proof_wrong_public_key(self):
         group, q, g = PoK.groupGen()
-        w, h = PoK.keygen(q, g)
+        w, h = PoK.keyGen(q, g)
         proof = PoK.proofGen(q, g, w)
 
-        self.assertFalse(PoK.Verifier_verify(group, g, 2*g, proof))
+        self.assertFalse(PoK.verify(group, g, 2*g, proof))
 
 class TestNIPoK(unittest.TestCase):
     def test_proof_correct_values(self):
         group, q, g = NIPoK.groupGen()
-        w, h = NIPoK.keygen(q, g)
+        w, h = NIPoK.keyGen(q, g)
         proof = NIPoK.proofGen(q, g, w, h)
 
-        self.assertTrue(NIPoK.Verifier_verify(group, g, h, proof))
+        self.assertTrue(NIPoK.verify(group, g, h, proof))
     
     def test_proof_wrong_witness(self):
         group, q, g = NIPoK.groupGen()
-        w, h = NIPoK.keygen(q, g)
+        w, h = NIPoK.keyGen(q, g)
         proof = NIPoK.proofGen(q, g, 0, h)
 
-        self.assertFalse(NIPoK.Verifier_verify(group, g, h, proof))
+        self.assertFalse(NIPoK.verify(group, g, h, proof))
     
     def test_proof_wrong_public_key(self):
         group, q, g = NIPoK.groupGen()
-        w, h = NIPoK.keygen(q, g)
+        w, h = NIPoK.keyGen(q, g)
         proof = NIPoK.proofGen(q, g, w, 2*g)
 
-        self.assertFalse(NIPoK.Verifier_verify(group, g, h, proof))
+        self.assertFalse(NIPoK.verify(group, g, h, proof))
 
 class TestPoE(unittest.TestCase):
     def test_proof_correct_values(self):
