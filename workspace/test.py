@@ -54,57 +54,57 @@ class TestPoE(unittest.TestCase):
         w, h1, h2 = PoE.keygen(q, g1, g2)
         proof = PoE.proofGen(q, g1, g2, w)
 
-        self.assertTrue(PoE.Verifier_verify(group, g1, g2, h1, h2, proof))
+        self.assertTrue(PoE.verify(group, g1, g2, h1, h2, proof))
     
     def test_proof_wrong_witness(self):
         group, q, g1, g2 = PoE.groupGen()
         w, h1, h2 = PoE.keygen(q, g1, g2)
         proof = PoE.proofGen(q, g1, g2, 0)
 
-        self.assertFalse(PoE.Verifier_verify(group, g1, g2, h1, h2, proof))
+        self.assertFalse(PoE.verify(group, g1, g2, h1, h2, proof))
     
     def test_proof_wrong_public_key(self):
         group, q, g1, g2 = PoE.groupGen()
         w, h1, h2 = PoE.keygen(q, g1, g2)
         proof = PoE.proofGen(q, g1, g2, w)
 
-        self.assertFalse(PoE.Verifier_verify(group, g1, g2, 2*g1, h2, proof))
+        self.assertFalse(PoE.verify(group, g1, g2, 2*g1, h2, proof))
     
     def test_proof_switched_public_keys(self):
         group, q, g1, g2 = PoE.groupGen()
         w, h1, h2 = PoE.keygen(q, g1, g2)
         proof = PoE.proofGen(q, g1, g2, w)
 
-        self.assertFalse(PoE.Verifier_verify(group, g1, g2, h2, h1, proof))
+        self.assertFalse(PoE.verify(group, g1, g2, h2, h1, proof))
 
 class TestNIPoE(unittest.TestCase):
     def test_proof_correct_values(self):
         group, q, g1, g2 = NIPoE.groupGen()
-        w, h1, h2 = NIPoE.keygen(q, g1, g2)
+        w, h1, h2 = NIPoE.keyGen(q, g1, g2)
         proof = NIPoE.proofGen(q, g1, g2, h1, h2, w)
 
-        self.assertTrue(NIPoE.Verifier_verify(group, g1, g2, h1, h2, proof))
+        self.assertTrue(NIPoE.verify(group, g1, g2, h1, h2, proof))
     
     def test_proof_wrong_witness(self):
         group, q, g1, g2 = NIPoE.groupGen()
-        w, h1, h2 = NIPoE.keygen(q, g1, g2)
+        w, h1, h2 = NIPoE.keyGen(q, g1, g2)
         proof = NIPoE.proofGen(q, g1, g2, h1, h2, 0)
 
-        self.assertFalse(NIPoE.Verifier_verify(group, g1, g2, h1, h2, proof))
+        self.assertFalse(NIPoE.verify(group, g1, g2, h1, h2, proof))
     
     def test_proof_wrong_public_key(self):
         group, q, g1, g2 = NIPoE.groupGen()
-        w, h1, h2 = NIPoE.keygen(q, g1, g2)
+        w, h1, h2 = NIPoE.keyGen(q, g1, g2)
         proof = NIPoE.proofGen(q, g1, g2, h1, h2, w)
 
-        self.assertFalse(NIPoE.Verifier_verify(group, g1, g2, 2*g1, h2, proof))
+        self.assertFalse(NIPoE.verify(group, g1, g2, 2*g1, h2, proof))
     
     def test_proof_switched_public_keys(self):
         group, q, g1, g2 = NIPoE.groupGen()
-        w, h1, h2 = NIPoE.keygen(q, g1, g2)
+        w, h1, h2 = NIPoE.keyGen(q, g1, g2)
         proof = NIPoE.proofGen(q, g1, g2, h1, h2, w)
 
-        self.assertFalse(NIPoE.Verifier_verify(group, g1, g2, h2, h1, proof))
+        self.assertFalse(NIPoE.verify(group, g1, g2, h2, h1, proof))
      
 
 if __name__=='__main__':

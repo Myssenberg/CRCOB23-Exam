@@ -171,7 +171,7 @@ def verify(group, g, h, proof):
 #Generation of public knowledge
 group, q, g = groupGen()
 
-#Prover generates their secret and public keys, "publishing" the public key
+#Prover generates their secret and public key, "publishing" the public key
 w, h = keyGen(q, g)
 
 #Prover generates proof, with challenge from Verifier
