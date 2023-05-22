@@ -1,7 +1,8 @@
 # CRCOB23-Exam
 
 This project requires the environment, on which it is run, to have the "Zero-Knowledge Swiss Knife" and "petlib" libraries installed.
-However, "petlib" in built-in to the installation of the "Zero-Knowledge Swiss Knife" library, so that is the only installation needed to be done.
+
+However, "petlib" is built-in to the installation of the "Zero-Knowledge Swiss Knife" library, so that is the only installation needed to be done.
 
 Alternatively, the project can be run from a Docker container, the setup of which is described below.
 
