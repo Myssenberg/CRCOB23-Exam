@@ -184,7 +184,7 @@ def verify(group, g, h, proof):
     return v & g_v & g_h
 
 
-#Generation of public knowledge
+"""#Generation of public knowledge
 group, q, g = groupGen()
 
 #Prover generates their secret and public keys, "publishing" the public key
@@ -202,4 +202,4 @@ finishVerify = time.process_time_ns() - startVerify
 
 print("NIPoK Proof verified:", v)
 print("NIPoK Proof Generation time:", finishProof)
-print("NIPoK Proof Verification time:", finishVerify)
+print("NIPoK Proof Verification time:", finishVerify)"""

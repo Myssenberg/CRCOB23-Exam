@@ -169,7 +169,7 @@ def verify(group, g, h, proof):
     return v & g_v & h_v
 
 
-#Generation of public knowledge
+"""#Generation of public knowledge
 group, q, g = groupGen()
 
 #Prover generates their secret and public key, "publishing" the public key
@@ -187,4 +187,4 @@ finishVerify = time.process_time_ns() - startVerify
 
 print("PoK Proof verified:", v)
 print("PoK Proof Generation time:", finishProof)
-print("PoK Proof Verification time:", finishVerify)
+print("PoK Proof Verification time:", finishVerify)"""
